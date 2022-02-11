@@ -1,14 +1,15 @@
 """HTML-map"""
-from cmath import pi
 import re
+import argparse
 from geopy.geocoders import Nominatim
 from geopy.distance import geodesic
 import folium
 from folium.plugins import MarkerCluster
-import argparse
-
 
 def parcer():
+    """
+    Function for arparsing with 4 arguments
+    """
     parser = argparse.ArgumentParser(description="Map")
 
     parser.add_argument("year_enetered", help='year enetered')
@@ -23,24 +24,17 @@ def parcer():
     file_url = args.file
     return year_entered, latttitude, longtitude, file_url
 
-# year_entered = 2014
-# latttitude = 55.78
-# longtitude = 45.77
-# file_url = "llist"
-
-# year_entered = 2000
-# latttitude = 49.83826
-# longtitude = 24.02324
-# file_url = "llist"
-
-# python3 main.py 2014 55.78 45.77 "llist" 
-# python3 main.py 2000 49.83826 24.02324 "llist" 
-
 def readingfile(file_url):
+    """
+    Read the file and return the list, which contains list with\
+name, year and location, like this [name, year, location]
+    >>> readingfile("locations.list") #doctest: +ELLIPSIS
+    [['"#1 Single"', 2006, 'Los Angeles, California, USA'],...
+    """
     list_for_lines = []
     with open(file_url, 'r', encoding = 'utf-8') as new_file:
         for i, line in enumerate(new_file):
-            if not(0 <= i <= 13): 
+            if not(0 <= i <= 13):
                 line = line.rstrip()
                 line = line.replace("\t", "")
                 list_for_lines.append(line)
@@ -70,7 +64,7 @@ def readingfile(file_url):
                 thelistwithoufiggand.append(line)
         elif line.count("(") == 1:
             thelistwithoufiggand.append(line)
-        
+
     namee= []
     yeaaarr = []
     for line in thelistwithoufiggand:
@@ -87,23 +81,28 @@ def readingfile(file_url):
     for line in thelistwithoufiggand:
         newline = line.split(")")
         location.append(newline[1])
-    
+
     zipall = list(zip(namee, yeaaarr, location))
     final_list = []
     final_list_num = []
-    
+
     for line in zipall:
         if not(line[0] == "" or line[1] == "" or line[2] == ""):
             final_list_num.append(int(line[1]))
             final_list.append(line)
-    
+
     list_of_lists_fi = [list(elem) for elem in final_list]
     for num in range(len(final_list)):
         list_of_lists_fi[num][1] = final_list_num[num]
     return list_of_lists_fi
 
 def calculate_coordinates(main_mass, year_entered):
-    """  Добавляэ в словник щоб уникнуи повтрыв"""
+    """
+    That function returns set, every element of which is a dictionary\
+with key as coordiantes and name as a value
+    >>> calculate_coordinates(main_mass[:5], 2014)
+    {(30.2711286, -97.7436995): ['"#ATown"']}
+    """
     return_list = {}
     for element in main_mass:
         if element[1] != year_entered:
@@ -125,7 +124,12 @@ def calculate_coordinates(main_mass, year_entered):
     return return_list
 
 def calcutale_distance(mass_coords, longtitude, latttitude):
-    """ Обчислюэ выдстань мж двома точкамим сортуэ за выдстаню обрызаэ першихм10"""
+    """
+    Calculate distance between two points, sort it\
+and take only 10 first coordiantes.
+    >>> calcutale_distance({(30.2711286, -97.7436995): ['"#ATown"']}, 45.77, 55.78)
+    [[['"#ATown"'], (30.2711286, -97.7436995), 9861.626433190442]]
+    """
     main_list = []
     coord_2 = str(latttitude) + ',' + str(longtitude)
     for key in mass_coords:
@@ -135,29 +139,36 @@ def calcutale_distance(mass_coords, longtitude, latttitude):
     return main_list[:10]
 
 def build_map(main_list, longtitude, latttitude):
-    """будуэ карту з фолыум використовує маркеткаластер з плагінів та групу маркрів ддля того щоб створити 3 шари карти що вимагає умова
-    створюєм айфрейм щоб створити віконечко з текстом"""
+    """
+    Fucntion creates a map using folium, with 3 layers: map, markers, cluster\
+we use marketcluster from plugins and and iframe to create a window woth text
+    """
     map = folium.Map(location = [latttitude, longtitude], zoom_start = 3, control_scale = True)
-    
+
     all_loc = [elem[1] for elem in main_list]
-    
+
     markers_group = folium.FeatureGroup(name = "Markers", show = False)
     cluster = MarkerCluster(all_loc, name = "Cluster")
     map.add_child(markers_group)
     map.add_child(cluster)
-    
+
     for element in main_list:
         text = element[0][0]
         for i in range(1, len(element[0])):
             text += ', ' + element[0][i]
         text = folium.IFrame(text, width = 200, height = 100)
-        markers_group.add_child(folium.Marker(location = element[1], popup = folium.Popup(text), icon = folium.Icon(color = "red")))
-    
+        markers_group.add_child(folium.Marker(location = element[1], \
+            popup = folium.Popup(text), icon = folium.Icon(color = "red")))
+
     map.add_child(folium.LayerControl())
     map.save("map.html")
 
-year_entered, latttitude, longtitude, file_url = parcer()
-main_mass = readingfile(file_url)
-mass_coords = calculate_coordinates(main_mass, year_entered)
-closest_list = calcutale_distance(mass_coords, latttitude, longtitude)
-build_map(closest_list, latttitude, longtitude)
+def main():
+    year_entered, latttitude, longtitude, file_url = parcer()
+    main_mass = readingfile(file_url)
+    mass_coords = calculate_coordinates(main_mass, year_entered)
+    closest_list = calcutale_distance(mass_coords, latttitude, longtitude)
+    build_map(closest_list, latttitude, longtitude)
+
+if __name__ == '__main__':
+    main()

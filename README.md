@@ -29,17 +29,17 @@ def parcer():
 2) Reading file: Read the file and return the list, which contains list with name, year and location, like this [name, year, location]
 
 Example:
-```
+```bash
 [['"#1 Single"', 2006, 'Los Angeles, California, USA'],...
 ```
 3) Calculating coordinates: That function returns set, every element of which is a dictionary with key as coordinates and name as a value
 
 I used geopy.geocoders to find the coordinates of the location:
-```
+```python
 loc = Nominatim(user_agent = 'app').geocode(element[2])
 ```
 4) Calculation of the distance: Calculate distance between two points, sort it and take only 10 first coordinates, using geodesic
-```
+```python
 main_list = []
     coord_2 = str(latttitude) + ',' + str(longtitude)
     for key in mass_coords:
@@ -50,7 +50,7 @@ main_list = []
 ```
 5) Building of the map:  Function creates a map using folium, with 3 layers: map, markers, cluster we use marker cluster from plugins and and iframe to create a window with text
 6) Main: runs all the function
-```
+```python
 def main():
     year_entered, latttitude, longtitude, file_url = parcer()
     main_mass = readingfile(file_url)

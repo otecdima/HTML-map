@@ -99,7 +99,7 @@ name, year and location, like this [name, year, location]
 def calculate_coordinates(main_mass, year_entered):
     """
     That function returns set, every element of which is a dictionary\
-with key as coordiantes and name as a value
+with key as coordinates and name as a value
     >>> calculate_coordinates(main_mass[:5], 2014)
     {(30.2711286, -97.7436995): ['"#ATown"']}
     """
@@ -126,7 +126,7 @@ with key as coordiantes and name as a value
 def calcutale_distance(mass_coords, longtitude, latttitude):
     """
     Calculate distance between two points, sort it\
-and take only 10 first coordiantes.
+and take only 10 first coordinates.
     >>> calcutale_distance({(30.2711286, -97.7436995): ['"#ATown"']}, 45.77, 55.78)
     [[['"#ATown"'], (30.2711286, -97.7436995), 9861.626433190442]]
     """
@@ -141,7 +141,7 @@ and take only 10 first coordiantes.
 def build_map(main_list, longtitude, latttitude):
     """
     Fucntion creates a map using folium, with 3 layers: map, markers, cluster\
-we use marketcluster from plugins and and iframe to create a window woth text
+we use marker cluster from plugins and and iframe to create a window with text
     """
     map = folium.Map(location = [latttitude, longtitude], zoom_start = 3, control_scale = True)
 
@@ -164,6 +164,9 @@ we use marketcluster from plugins and and iframe to create a window woth text
     map.save("map.html")
 
 def main():
+    """
+    Main function to build the map, run other functions
+    """
     year_entered, latttitude, longtitude, file_url = parcer()
     main_mass = readingfile(file_url)
     mass_coords = calculate_coordinates(main_mass, year_entered)
